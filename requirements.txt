@@ -1,0 +1,5 @@
+Flask
+pandas
+openpyxl
+pywin32
+pywebview[qt]

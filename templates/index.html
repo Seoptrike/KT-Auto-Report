@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko" data-bs-theme="light">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>업무실적 자동화</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* 추가적인 스타일링이 필요할 경우 여기에 작성 */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+        }
+
+        .card {
+            transition: box-shadow .3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-5">
+        <header class="text-center mb-5">
+            <h1 class="display-5 fw-bold">매출결의서 작성 자동화 v1.0 📊</h1>
+            <p class="lead text-muted">ACEN, AICC 정산 파일을 업로드하여 </p>
+            <p class="lead text-muted">매출결의서 작성 및 업무실적 파일을 생성 및 업데이트합니다.</p>
+        </header>
+        <h2>처리 현황 로그</h2>
+        <pre id="log-box"
+            style="border: 1px solid #ccc; background: #f0f0f0; height: 150px; overflow-y: scroll; padding: 10px;"></pre>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'message' else ('danger' if category == 'error' else category) }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-book-half"></i> 사용 설명서</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <strong style="font-size: large;">Acen 정산 메일을 받은 후:</strong>
+                    <br>
+                    1. Acen 정산 파일 메일을 받으면 엑셀 파일을 업로드 합니다
+                    <br />
+                    2. <code>ACEN 실행</code> 버튼을 눌러 해당 월의 새로운 '업무실적' 파일과 'Acen 매출결의서' 파일을 생성합니다.
+                </p>
+                <p class="card-text">
+                    <strong style="font-size: large;">AICC 정산이 완료되면 :</strong>
+                    <br>
+                    1. 비즈포탈 접속 후 정산 메뉴 - 정산결과조회 눌러 좌측 로그인 정보 밑에 정산결과조회 메뉴를 선택합니다.
+                    <br />
+                    2. 정산사업자 넷컴솔루션 검색합니다.
+                    <br />
+                    3. 채널정산결과 목록을 하나씩 차례대로 눌러 아래에 채널정산결과상세 목록에서 엑셀을 눌러 다운로드 받습니다.
+                    <br />
+                    4. 모든 엑셀을 다운 받은 후 일괄 업로드 합니다.
+                    <br />
+                    5. <code>AICC 실행</code> 버튼을 눌러 최종 '업무실적' 파일과 'AICC 매출결의서' 파일을 생성합니다.
+                </p>
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>주의:</strong> 반드시 ACEN을 먼저 실행하여 월 파일을 생성해야 AICC 작업이 가능합니다.
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <form method="post" enctype="multipart/form-data" action="/run/acen">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">ACEN 실행</h5>
+                            <p class="card-subtitle mb-2 text-muted">월초 1회, 새 파일 생성</p>
+                            <div class="mb-3 mt-auto">
+                                <label for="acen_file" class="form-label">ACEN 파일 선택</label>
+                                <input class="form-control" type="file" id="acen_file" name="acen_file"
+                                    accept=".xlsx,.xlsm" required>
+                            </div>
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="bi bi-file-earmark-plus-fill"></i> ACEN 실행
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <form method="post" enctype="multipart/form-data" action="/run/aicc">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">AICC 실행</h5>
+                            <p class="card-subtitle mb-2 text-muted">AICC 정산 후, 최종 업무실적 파일 생성</p>
+                            <div class="mb-3 mt-auto">
+                                <label for="aicc_files" class="form-label">AICC 파일 선택 (여러 개 가능)</label>
+                                <input class="form-control" type="file" id="aicc_files" name="aicc_files"
+                                    accept=".xlsx,.xlsm" multiple required>
+                            </div>
+                            <button class="btn btn-success w-100" type="submit">
+                                <i class="bi bi-plus-circle-dotted"></i> AICC 실행
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if result %}
+        <hr class="my-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">처리 결과</h5>
+            </div>
+            <div class="card-body">
+                <pre class="mb-0 bg-light p-3 rounded"><code>{{ result }}</code></pre>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

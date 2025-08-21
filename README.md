@@ -9,6 +9,8 @@
 
 👉 [최신 실행 파일 다운로드](https://github.com/Seoptrike/KT-Auto-Report/releases/latest)
 
+[1.0.0 다운로드] (https://github.com/Seoptrike/KT-Auto-Report/releases/download/v1.0.0/KT_auto_report_v1.0.exe)
+
 ---
 
 ## ✨ 프로젝트 개요

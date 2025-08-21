@@ -5,6 +5,12 @@
 
 ---
 
+## 🚀 다운로드
+
+👉 [최신 실행 파일 다운로드](https://github.com/Seoptrike/KT-Auto-Report/releases/latest)
+
+---
+
 ## ✨ 프로젝트 개요
 
 매월 진행되는 정산 업무는 다수의 Excel 파일을 수작업으로 취합해야 하므로  

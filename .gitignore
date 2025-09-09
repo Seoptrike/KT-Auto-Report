@@ -1,23 +1,25 @@
-# PyInstaller 파일
-/build/
-/dist/
-*.spec
-
-# 파이썬 캐시 파일
+# Python
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
 
-# 가상 환경 폴더
-venv/
-.venv/
-
-# 프로젝트 데이터 및 결과물
-*.zip
+# Excel files
 *.xlsx
-*.exe
+*.xlsm
+*.xls
 
-# IDE/에디터 설정 파일
+# Environment and secrets
+.env
+.secret
+*.key
+
+# Output directory
+output/
+
+# IDE
 .vscode/
 .idea/
+
+# OS
+.DS_Store
+Thumbs.db

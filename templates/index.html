@@ -31,13 +31,10 @@
 <body>
     <div class="container my-5">
         <header class="text-center mb-5">
-            <h1 class="display-5 fw-bold">매출결의서 작성 자동화 v1.0 📊</h1>
+            <h1 class="display-5 fw-bold">매출결의서 작성 자동화 v1.1 📊</h1>
             <p class="lead text-muted">ACEN, AICC 정산 파일을 업로드하여 </p>
             <p class="lead text-muted">매출결의서 작성 및 업무실적 파일을 생성 및 업데이트합니다.</p>
         </header>
-        <h2>처리 현황 로그</h2>
-        <pre id="log-box"
-            style="border: 1px solid #ccc; background: #f0f0f0; height: 150px; overflow-y: scroll; padding: 10px;"></pre>
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
@@ -58,22 +55,26 @@
                 <p class="card-text">
                     <strong style="font-size: large;">Acen 정산 메일을 받은 후:</strong>
                     <br>
-                    1. Acen 정산 파일 메일을 받으면 엑셀 파일을 업로드 합니다
+                    1. Acen 정산 파일 메일을 받으면 엑셀 파일을 업로드 합니다.
                     <br />
-                    2. <code>ACEN 실행</code> 버튼을 눌러 해당 월의 새로운 '업무실적' 파일과 'Acen 매출결의서' 파일을 생성합니다.
+                    2. 세금계산서 역발행한 날짜를 입력합니다.
+                    <br />
+                    3. <code>ACEN 실행</code> 버튼을 눌러 해당 월의 새로운 'Acen 매출결의서' 파일을 생성합니다.
                 </p>
                 <p class="card-text">
                     <strong style="font-size: large;">AICC 정산이 완료되면 :</strong>
                     <br>
-                    1. 비즈포탈 접속 후 정산 메뉴 - 정산결과조회 눌러 좌측 로그인 정보 밑에 정산결과조회 메뉴를 선택합니다.
+                    1. 비즈포탈 접속 후 정산 메뉴 - 정산결과조회 눌러 좌측 로그인 정보 밑 정산결과를 조회합니다.
                     <br />
                     2. 정산사업자 넷컴솔루션 검색합니다.
                     <br />
-                    3. 채널정산결과 목록을 하나씩 차례대로 눌러 아래에 채널정산결과상세 목록에서 엑셀을 눌러 다운로드 받습니다.
+                    3. 채널정산결과 목록을 하나씩 차례대로 눌러 아래 채널정산결과상세 목록을 다운로드 받습니다.
                     <br />
                     4. 모든 엑셀을 다운 받은 후 일괄 업로드 합니다.
                     <br />
-                    5. <code>AICC 실행</code> 버튼을 눌러 최종 '업무실적' 파일과 'AICC 매출결의서' 파일을 생성합니다.
+                    5. 세금계산서 발행한 날짜를 입력합니다.
+                    <br />
+                    6. <code>AICC 실행</code> 버튼을 눌러 최종 '업무실적' 파일과 'AICC 매출결의서' 파일을 생성합니다.
                 </p>
                 <div class="alert alert-warning mt-3 mb-0">
                     <i class="bi bi-exclamation-triangle-fill"></i>
@@ -84,7 +85,7 @@
 
         <div class="row">
             <div class="col-md-6 mb-4">
-                <form method="post" enctype="multipart/form-data" action="/run/acen">
+                <form id="form-acen" method="post" enctype="multipart/form-data" action="/run/acen">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title fw-bold">ACEN 실행</h5>
@@ -93,6 +94,11 @@
                                 <label for="acen_file" class="form-label">ACEN 파일 선택</label>
                                 <input class="form-control" type="file" id="acen_file" name="acen_file"
                                     accept=".xlsx,.xlsm" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="acen_report_day" class="form-label">세금계산서 역발행일</label>
+                                <input class="form-control" type="number" id="acen_report_day" name="report_day" min="1"
+                                    max="31" placeholder="예: 5">
                             </div>
                             <button class="btn btn-primary w-100" type="submit">
                                 <i class="bi bi-file-earmark-plus-fill"></i> ACEN 실행
@@ -103,7 +109,7 @@
             </div>
 
             <div class="col-md-6 mb-4">
-                <form method="post" enctype="multipart/form-data" action="/run/aicc">
+                <form id="form-aicc" method="post" enctype="multipart/form-data" action="/run/aicc">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title fw-bold">AICC 실행</h5>
@@ -113,6 +119,11 @@
                                 <input class="form-control" type="file" id="aicc_files" name="aicc_files"
                                     accept=".xlsx,.xlsm" multiple required>
                             </div>
+                            <div class="mb-3">
+                                <label for="aicc_report_day" class="form-label">세금계산서 발행일</label>
+                                <input class="form-control" type="number" id="aicc_report_day" name="report_day" min="1"
+                                    max="31" placeholder="예: 15">
+                            </div>
                             <button class="btn btn-success w-100" type="submit">
                                 <i class="bi bi-plus-circle-dotted"></i> AICC 실행
                             </button>
@@ -121,24 +132,86 @@
                 </form>
             </div>
         </div>
-
-        {% if result %}
-        <hr class="my-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">처리 결과</h5>
-            </div>
-            <div class="card-body">
-                <pre class="mb-0 bg-light p-3 rounded"><code>{{ result }}</code></pre>
-            </div>
-        </div>
-        {% endif %}
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+        </script>
+    <script>
+        (function () {
+            // Content-Disposition 헤더에서 파일명 추출
+            function getFilenameFromCD(cd) {
+                if (!cd) return null;
+                let m = cd.match(/filename\*=UTF-8''([^;]+)/i);
+                if (m) return decodeURIComponent(m[1].replace(/["']/g, ''));
+                m = cd.match(/filename="?([^"]+)"?/i);
+                if (m) return m[1].trim();
+                return null;
+            }
+
+            // 공통 핸들러: fetch로 파일 받고 저장 → 홈으로 이동
+            function wireDownloadForm(formId) {
+                const form = document.getElementById(formId);
+                if (!form) return;
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const fd = new FormData(form);
+
+                    // UX: 버튼 잠깐 비활성화 (옵션)
+                    const btn = form.querySelector('button[type="submit"]');
+                    const btnText = btn ? btn.textContent : null;
+                    if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+
+                    try {
+                        const res = await fetch(form.action, { method: 'POST', body: fd });
+                        if (!res.ok) {
+                            alert('서버 처리 중 오류가 발생했습니다.');
+                            return;
+                        }
+
+                        // 파일 blob으로 수신 후 저장
+                        const blob = await res.blob();
+                        const cd = res.headers.get('Content-Disposition');
+                        const filename = getFilenameFromCD(cd) || 'download';
+
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        a.remove();
+
+                        // 약간의 여유 후 홈으로 이동
+                        setTimeout(() => { window.location.href = '/'; }, 500);
+                    } catch (err) {
+                        console.error(err);
+                        alert('네트워크 오류가 발생했습니다.');
+                    } finally {
+                        if (btn) { btn.disabled = false; btn.textContent = btnText; }
+                    }
+                });
+            }
+
+            wireDownloadForm('form-acen');
+            wireDownloadForm('form-aicc');
+        })();
+    </script>
+    <script>
+        (function () {
+            const today = new Date();
+            const day = today.getDate(); // 오늘 날짜의 '일'
+
+            const acenDay = document.getElementById('acen_report_day');
+            const aiccDay = document.getElementById('aicc_report_day');
+
+            if (acenDay && !acenDay.value) acenDay.value = day;
+            if (aiccDay && !aiccDay.value) aiccDay.value = day;
+        })();
+    </script>
 </body>
 
 </html>

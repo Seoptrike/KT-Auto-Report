@@ -1,126 +1,167 @@
-# 📊 매출결의서 작성 자동화 프로그램
+# 📊 KT 매출결의서 자동화 시스템 (v1.1)
 
-월별로 반복되는 ACEN 및 AICC 정산 자료를 자동으로 취합하여, 업무실적 보고서를 생성하는 데스크톱 애플리케이션입니다.
-
----
-
-## 🚀 다운로드
-
-👉 [최신 실행 파일 다운로드](https://github.com/Seoptrike/KT-Auto-Report/releases/latest)
-
-[1.0.0 다운로드] (https://github.com/Seoptrike/KT-Auto-Report/releases/download/v1.0.0/KT_auto_report_v1.0.exe)
+KT ACEN 및 AICC 정산 자료를 자동으로 처리하여 매출결의서와 업무실적 보고서를 생성하는 웹 기반 자동화 시스템입니다.
 
 ---
 
-## 📌 프로젝트 개요
+## 🆕 v1.1 주요 변경사항
 
-매월 반복되는 정산 업무를 수작업으로 진행하다 보니 **시간이 오래 걸리고
-실수가 잦은 문제**가 있었습니다.\
-이를 해결하기 위해, **정산 자동화 프로그램**을 직접 개발했습니다.
+### 🏗️ 아키텍처 전환
+- **v1.0**: pywebview 기반 데스크톱 애플리케이션 (.exe)
+- **v1.1**: Flask 기반 웹 애플리케이션 (브라우저 접근)
 
-처음에는 **Flask 기반 웹 서비스**로 시작했지만,\
-여러 기술적 제약을 해결하는 과정에서\
-최종적으로 **사용자 PC에서 실행 가능한 데스크톱 애플리케이션(.exe)**
-으로 완성되었습니다.
+### 📚 라이브러리 최적화
+- **제거**: win32com.client (MS Office 의존성 해결)
+- **중심**: openpyxl 기반 순수 Python 구현
+- **추가**: pandas, numpy를 활용한 데이터 처리 최적화
+
+### 🎯 모듈화 개선
+- `services/` 디렉토리로 로직 분리
+  - `acen.py`: ACEN 데이터 처리
+  - `aicc.py`: AICC 데이터 처리 및 통합
+  - `sum.py`: 업무실적 보고서 생성
+- 템플릿 기반 웹 UI
+
+### 🚀 배포 방식 변화
+- **v1.0**: PyInstaller로 .exe 빌드 + threading/queue 기반 UI
+- **v1.1**: 웹서버 배포 + 동기식 처리
 
 ---
 
-## 📸 스크린샷
+## 📌 시스템 개요
 
-![프로그램 실행 화면](images/main1.png)
+월별로 반복되는 ACEN 및 AICC 정산 자료를 웹 브라우저를 통해 업로드하면, 자동으로 처리하여 다음과 같은 결과물을 생성합니다:
+
+- 📄 **ACEN 매출결의서**: ACEN 데이터 기반 매출결의서
+- 📄 **AICC 매출결의서**: 다중 AICC 파일 통합 처리
+- 📊 **업무실적 보고서**: 전체 데이터 종합 실적 보고서
+- 📦 **통합 ZIP 파일**: 모든 결과물을 포함한 압축파일
 
 ---
 
 ## 🚀 주요 기능
 
-- 💻 데스크톱 GUI: 웹 기술(HTML, CSS, Bootstrap) 기반  
-- 📂 엑셀 자동 처리: ACEN 및 다중 AICC 파일 업로드 → 자동 통합  
-- ⚡ 자동 연산: win32com을 활용한 업무실적 파일 업데이트 및 계산  
-- 📜 작업 로그 표시: 비동기 처리 기반의 실시간 로그 확인  
-- 📦 결과물 자동 저장: 최종 결과물(.zip)을 다운로드 폴더에 저장  
-- 🔨 손쉬운 배포: 단일 실행 파일(.exe) 빌드 및 배포 지원  
+### 💻 웹 기반 인터페이스
+- 브라우저에서 직접 접근 가능
+- Bootstrap 기반 반응형 UI
+- 직관적인 파일 업로드 및 처리
+
+### 📂 스마트 파일 처리
+- **ACEN**: 단일 엑셀 파일 처리
+- **AICC**: 다중 파일 자동 통합 및 그룹핑
+- 자동 데이터 검증 및 오류 처리
+
+### ⚡ 자동화된 연산 처리
+- openpyxl 기반 순수 Python 연산
+- 템플릿 기반 자동 문서 생성
+- 날짜 기반 자동 파일명 생성
+
+### 📦 결과물 관리
+- 연도/월별 자동 디렉토리 구성
+- ZIP 파일로 통합 다운로드
+- 처리 이력 관리
 
 ---
 
 ## 🛠️ 기술 스택
 
-- 언어: Python  
-- 백엔드: Flask  
-- 프론트엔드: HTML, CSS (Bootstrap 5)  
-- 데스크톱 앱: pywebview  
-- 엑셀 자동화: win32com, openpyxl  
-- 동시성 처리: threading, queue  
-- 배포: PyInstaller  
----
+### 백엔드
+- **Python 3.8+**
+- **Flask 3.0.3**: 웹 프레임워크
+- **pandas 2.2.2**: 데이터 처리
+- **openpyxl 3.1.2**: 엑셀 파일 처리
+- **python-dateutil**: 날짜 처리
 
-## ⚡ 개발 과정에서의 주요 이슈와 해결 방법
+### 프론트엔드
+- **HTML5 + CSS3**
+- **Bootstrap 5**: 반응형 UI
+- **JavaScript**: 동적 UI 처리
 
-### 🧩 문제 1: Excel 수식 손상
-
--   **원인**: `openpyxl` 라이브러리가 복잡한 Excel 수식을 보존하지 못함
--   **해결**: `win32com` 으로 MS Office를 직접 제어하여
-    → **수식과 서식을 온전히 보존**
-
-
-### 🖥️ 문제 2: 서버 배포 한계
-
--   **원인**: `win32com`은 MS Office가 설치된 환경에서만 동작 → Office가
-    없는 사내 VM에 배포 불가
--   **해결**: `PyInstaller` + `pywebview` 활용
-    → **누구나 실행 가능한 .exe 데스크톱 앱**으로 전환
-
-
-
-### 🚦 문제 3: UI 멈춤 현상
-
--   **원인**: 무거운 Excel 작업 실행 시 프로그램 전체가 멈춰, 진행 상황
-    확인 불가
--   **해결**: `threading` + `queue` 적용
-    → **백그라운드 처리 + 실시간 로그 출력**으로 사용자 경험 개선
-
-
-
-## ✅ 결과
-
--   반복적인 정산 업무 시간을 **대폭 단축**
--   IT 환경 제약 없이 **사내 누구나 쉽게 실행 가능**
+### 배포
+- **Gunicorn**: WSGI 서버
 
 ---
 
-## ⚙️ 로컬 실행 방법
+## 📁 프로젝트 구조
 
-1. 저장소 클론
-    git clone https://github.com/Seoptrike/KT-Auto-Report.git
-    cd KT-Auto-Report
-
-2. 가상환경 생성 및 활성화 (권장)
-    python -m venv venv
-    source venv/bin/activate      # macOS/Linux
-    .\venv\Scripts\activate       # Windows
-
-3. 의존성 설치
-    pip install -r requirements.txt
-
-4. 개발 모드 실행
-    python develop.py
+```
+KT_auto_system_byOpenpyxl/
+├── app.py                 # Flask 메인 애플리케이션
+├── requirements.txt       # Python 의존성
+├── .gitignore            # Git 무시 파일
+├── services/             # 비즈니스 로직
+│   ├── __init__.py
+│   ├── acen.py          # ACEN 처리 로직
+│   ├── aicc.py          # AICC 처리 로직
+│   └── sum.py           # 업무실적 생성 로직
+├── templates/           # 템플릿 파일
+│   ├── index.html       # 메인 웹 페이지
+│   └── *.xlsx          # 매출결의서 템플릿들
+├── data/               # 샘플 데이터 (개발용)
+│   └── *.xlsx          # 테스트용 데이터 파일들
+└── output/             # 생성된 결과물
+    └── 2025/
+        └── 09/         # 연도/월별 구성
+```
 
 ---
 
-## 📦 EXE 파일로 빌드하기
+## ⚙️ 설치 및 실행
 
-PyInstaller를 이용하여 단일 실행 파일(.exe)을 생성할 수 있습니다.
+### 1. 가상환경 생성 (권장)
+```bash
+python -m venv venv
+source venv/bin/activate      # macOS/Linux
+venv\Scripts\activate         # Windows
+```
 
-    pyinstaller --onefile --windowed \
-        --hidden-import=win32com.client \
-        --add-data "templates;templates" \
-        --add-data "업무실적계산기.xlsx;." \
-        --add-data "services;services" \
-        app.py
+### 2. 의존성 설치
+```bash
+pip install -r requirements.txt
+```
 
-- 생성된 실행 파일은 dist/ 디렉토리에서 확인할 수 있습니다.
+### 3. 개발 서버 실행
+```bash
+python app.py
+```
+
+웹 브라우저에서 `http://localhost:5000` 접속
+
+### 4. 프로덕션 배포
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
+
+---
+
+## 📖 사용법
+
+1. **웹 브라우저 접속**: `http://localhost:5000`
+2. **파일 업로드**:
+   - ACEN 파일 (단일): `.xlsx` 파일 선택
+   - AICC 파일 (다중): 여러 `.xlsx` 파일 선택
+3. **처리 실행**: "처리 시작" 버튼 클릭
+4. **결과 다운로드**: 처리 완료 후 ZIP 파일 다운로드
+
+---
+
+## 🔧 개발 히스토리
+
+### v1.0의 한계점과 해결
+1. **MS Office 의존성**: win32com → openpyxl 전환으로 해결
+2. **배포 복잡성**: .exe 빌드 → 웹 기반 배포로 간소화
+3. **사용성**: 로컬 설치 → 브라우저 접근으로 개선
+4. **UI 복잡성**: threading/queue 기반 비동기 UI → 단순한 웹 기반 동기 처리
+
+### v1.1의 핵심 개선사항
+- 🌐 **접근성 향상**: 브라우저만 있으면 어디서든 사용 가능
+- 🔧 **유지보수성**: 모듈화된 구조로 개발 효율성 증대
+- 📈 **확장성**: 웹 기반으로 다중 사용자 지원 가능
+- 🛡️ **안정성**: 순수 Python 구현으로 환경 의존성 최소화
+- ⚡ **단순성**: 동기식 처리로 복잡한 스레딩 로직 제거
 
 ---
 
 ## 📝 라이선스
 
-이 프로젝트는 MIT License를 따릅니다.
+이 프로젝트는 사내 업무 자동화를 위한 내부 도구입니다.
